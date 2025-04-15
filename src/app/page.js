@@ -161,8 +161,12 @@ export default function Home() {
       <button
         key={type}
         onClick={() => setFilter(type)}
-        className="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 py-1 px-3 rounded-full text-sm transition-colors"
-      >
+        className={
+          type === filter 
+            ? "bg-indigo-100 hover:bg-indigo-400 text-indigo-800 py-1 px-3 rounded-full text-sm transition-colors" 
+            : "bg-gray-100 hover:bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm transition-colors"
+        }
+        >
         {type}
       </button>
     ))}
