@@ -86,7 +86,7 @@ export default function Home() {
   <div className="bg-white rounded-lg shadow-md p-6 mb-8">
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <p className="text-gray-700">Total de Refeições: {meals.length}</p>
-      <p className="text-blue-600 font-medium">Calorias Totais Hoje: {totalCaloriesToday()}kcal</p>
+      <p className="text-blue-600 font-medium">Você {(totalCaloriesToday() !== 0 ? totalCaloriesToday() : 'não consumiu')} calorias hoje!</p>
       <button
         onClick={() => setShowForm(true)}
         className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md transition-colors"
@@ -226,7 +226,7 @@ export default function Home() {
             <>
               <div className="flex justify-between items-start mb-2">
                 <h2 className="text-lg font-semibold text-gray-800">{meal.name}</h2>
-                <span className="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">
+                <span className="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm">
                   {meal.type}
                 </span>
               </div>
