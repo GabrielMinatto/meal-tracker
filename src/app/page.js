@@ -14,7 +14,7 @@ export default function Home() {
     description: "",
     calories: "",
     type: "",
-    date: new Date().toISOString().split("T")[0],
+    date: "",
   });
 
   useEffect(() => {
@@ -99,14 +99,14 @@ export default function Home() {
   {showForm && (
     <form onSubmit={createMeal} className="bg-white rounded-lg shadow-md p-6 mb-8">
       <h2 className="text-xl font-semibold mb-4 text-gray-800">Nova Refeição</h2>
-      <div className="space-y-4">
+      <div className="flex-box space-x-4 space-y-4 ">
         <input
           type="text"
           placeholder="Nome"
           value={newMeal.name}
           onChange={(e) => setNewMeal({ ...newMeal, name: e.target.value })}
           required
-          className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          className="w-auto md:w-1/3 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         />
         <input
           type="text"
@@ -114,21 +114,28 @@ export default function Home() {
           value={newMeal.description}
           onChange={(e) => setNewMeal({ ...newMeal, description: e.target.value })}
           required
-          className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          className="w-auto md:w-1/3 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         />
         <input
           type="number"
           placeholder="Calorias"
           value={newMeal.calories}
           onChange={(e) => setNewMeal({ ...newMeal, calories: Number(e.target.value) })}
-          className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          className="w-auto md:w-1/3 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           required
+        />
+        <input
+          type="date"
+          value={newMeal.date}
+          onChange={(e) => setNewMeal({ ...newMeal, date: e.target.value })}
+          required
+          className="w-auto md:w-1/3 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         />
         <select
           value={newMeal.type}
           onChange={(e) => setNewMeal({ ...newMeal, type: e.target.value })}
           required
-          className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          className="w-auto md:w-1/3 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         >
           <option value="">Selecione o tipo</option>
           <option value="Café da manhã">Café da manhã</option>
@@ -204,6 +211,12 @@ export default function Home() {
                 type="number"
                 value={editMeal.calories}
                 onChange={(e) => setEditMeal({ ...editMeal, calories: Number(e.target.value) })}
+                className="w-full p-2 border border-gray-300 rounded-md"
+              />
+              <input
+                type="date"
+                value={editMeal.date}
+                onChange={(e) => setEditMeal({ ...editMeal, date: e.target.value})}
                 className="w-full p-2 border border-gray-300 rounded-md"
               />
               <div className="flex gap-2">
