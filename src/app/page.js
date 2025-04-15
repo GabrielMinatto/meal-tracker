@@ -86,7 +86,7 @@ export default function Home() {
   <div className="bg-white rounded-lg shadow-md p-6 mb-8">
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <p className="text-gray-700">Total de Refeições: {meals.length}</p>
-      <p className="text-blue-600 font-medium">Você {(totalCaloriesToday() !== 0 ? totalCaloriesToday() : 'não consumiu')} calorias hoje!</p>
+      <p className="text-blue-600 font-medium">Você {(totalCaloriesToday() !== 0 ?  `consumiu ${totalCaloriesToday()}` : 'não registrou')} calorias hoje!</p>
       <button
         onClick={() => setShowForm(true)}
         className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md transition-colors"
