@@ -12,4 +12,5 @@ pnpm dev
 bun dev
 ```
 Link do deploy vercel: https://meal-tracker-gilt.vercel.app
+
 Repositório no Github: https://github.com/GabrielMinatto/meal-tracker
