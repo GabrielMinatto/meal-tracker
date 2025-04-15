@@ -1,103 +1,258 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useState } from "react";
+import { FaCheck, FaTimes, FaPencilAlt, FaTrash} from 'react-icons/fa';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [meals, setMeals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("");
+  const [editMeal, setEditMeal] = useState(null);
+  const [showForm, setShowForm] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  const [newMeal, setNewMeal] = useState({
+    name: "",
+    description: "",
+    calories: "",
+    type: "",
+    date: new Date().toISOString().split("T")[0],
+  });
+
+  useEffect(() => {
+    fetchMeals();
+  }, []);
+  async function fetchMeals() {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/meals`, { method: "GET" });
+      const json = await res.json();
+      console.log(json.data);
+      setMeals(json.data);
+    } catch (error) {
+      console.error("Erro ao buscar refeições:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function totalCaloriesToday() {
+    const today = new Date().toISOString().split("T")[0];
+    return meals
+      .filter((meal) => meal.date?.startsWith(today))
+      .reduce((acc, meal) => acc + Number(meal.calories), 0);
+  }
+
+  async function deleteMeal(id) {
+    if (!confirm("Deseja excluir esta refeição?")) return;
+    await fetch(`/api/meals/${id}`, { method: "DELETE" });
+    fetchMeals();
+  }
+
+  async function handleEditSubmit(e) {
+    e.preventDefault();
+    await fetch(`/api/meals/${editMeal._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editMeal),
+    });
+    setEditMeal(null);
+    fetchMeals();
+  }
+
+  async function createMeal(e) {
+    e.preventDefault();
+    await fetch(`/api/meals`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json"},
+      body: JSON.stringify(newMeal),
+    });
+    setNewMeal({
+      name: "",
+      description: "",
+      calories: "",
+      type: "",
+      date: new Date().toISOString().split("T")[0],
+    });
+    fetchMeals();
+  }
+
+  const filteredMeals = filter
+    ? meals.filter((meal) => meal.type === filter)
+    : meals;
+
+  return (
+<div className="container mx-auto px-4 py-8 max-w-4xl">
+  <h1 className="text-3xl text-center font-bold mb-12 text-indigo-700">Refeições</h1>
+  
+  <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <p className="text-gray-700">Total de Refeições: {meals.length}</p>
+      <p className="text-blue-600 font-medium">Calorias Totais Hoje: {totalCaloriesToday()}kcal</p>
+      <button
+        onClick={() => setShowForm(true)}
+        className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md transition-colors"
+      >
+        Adicionar Nova Refeição
+      </button>
     </div>
+  </div>
+
+  {showForm && (
+    <form onSubmit={createMeal} className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">Nova Refeição</h2>
+      <div className="space-y-4">
+        <input
+          type="text"
+          placeholder="Nome"
+          value={newMeal.name}
+          onChange={(e) => setNewMeal({ ...newMeal, name: e.target.value })}
+          required
+          className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+        <input
+          type="text"
+          placeholder="Descrição"
+          value={newMeal.description}
+          onChange={(e) => setNewMeal({ ...newMeal, description: e.target.value })}
+          required
+          className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+        <input
+          type="number"
+          placeholder="Calorias"
+          value={newMeal.calories}
+          onChange={(e) => setNewMeal({ ...newMeal, calories: Number(e.target.value) })}
+          className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          required
+        />
+        <select
+          value={newMeal.type}
+          onChange={(e) => setNewMeal({ ...newMeal, type: e.target.value })}
+          required
+          className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        >
+          <option value="">Selecione o tipo</option>
+          <option value="Café da manhã">Café da manhã</option>
+          <option value="Almoço">Almoço</option>
+          <option value="Lanche da tarde">Lanche da tarde</option>
+          <option value="Janta">Janta</option>
+        </select>
+        <div className="flex gap-2">
+          <button 
+            type="submit"
+            className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition-colors"
+          >
+            <FaCheck /> Adicionar
+          </button>
+          <button 
+            type="button" 
+            onClick={() => setShowForm(false)}
+            className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md transition-colors"
+          >
+            <FaTimes /> Cancelar
+          </button>
+        </div>
+      </div>
+    </form>
+  )}
+
+  <div className="mb-8 flex flex-wrap items-center gap-2">
+    <label className="text-gray-700 mr-2">Filtrar por tipo:</label>
+    {['Café da manhã', 'Almoço', 'Lanche da tarde', 'Janta'].map((type) => (
+      <button
+        key={type}
+        onClick={() => setFilter(type)}
+        className="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 py-1 px-3 rounded-full text-sm transition-colors"
+      >
+        {type}
+      </button>
+    ))}
+    <button 
+      onClick={() => setFilter('')}
+      className="bg-gray-100 hover:bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm transition-colors"
+    >
+      Limpar filtro
+    </button>
+  </div>
+
+  {loading ? (
+    <p className="text-center text-gray-500 py-8">Carregando refeições...</p>
+  ) : filteredMeals.length === 0 ? (
+    <p className="text-center text-gray-500 py-8">Nenhuma refeição encontrada.</p>
+  ) : (
+    <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {filteredMeals.map((meal) => (
+        <li key={meal._id} className="bg-white rounded-lg shadow-md p-4">
+          {editMeal?._id === meal._id ? (
+            <form onSubmit={handleEditSubmit} className="space-y-3">
+              <input
+                type="text"
+                value={editMeal.name}
+                onChange={(e) => setEditMeal({ ...editMeal, name: e.target.value })}
+                className="w-full p-2 border border-gray-300 rounded-md"
+              />
+              <input
+                type="text"
+                value={editMeal.description}
+                onChange={(e) => setEditMeal({ ...editMeal, description: e.target.value })}
+                className="w-full p-2 border border-gray-300 rounded-md"
+              />
+              <input
+                type="number"
+                value={editMeal.calories}
+                onChange={(e) => setEditMeal({ ...editMeal, calories: Number(e.target.value) })}
+                className="w-full p-2 border border-gray-300 rounded-md"
+              />
+              <div className="flex gap-2">
+                <button 
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-md text-sm"
+                >
+                  Salvar
+                </button>
+                <button 
+                  onClick={() => setEditMeal(null)} 
+                  type="button"
+                  className="bg-gray-600 hover:bg-gray-700 text-white py-1 px-3 rounded-md text-sm"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <div className="flex justify-between items-start mb-2">
+                <h2 className="text-lg font-semibold text-gray-800">{meal.name}</h2>
+                <span className="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">
+                  {meal.type}
+                </span>
+              </div>
+              <p className="text-gray-600 mb-2">{meal.description}</p>
+              <div className="flex justify-between items-center">
+                <span className="text-blue-600 font-medium">{meal.calories} calorias</span>
+                <span className="text-gray-500 text-sm">
+                  {new Date(meal.date).toISOString().split("T")[0]}
+                </span>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <button 
+                  onClick={() => setEditMeal(meal)}
+                  className="flex items-center gap-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 py-1 px-3 rounded-md text-sm"
+                >
+                  <FaPencilAlt size={12}/> Editar
+                </button>
+                <button 
+                  onClick={() => deleteMeal(meal._id)}
+                  className="flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-800 py-1 px-3 rounded-md text-sm"
+                >
+                  <FaTrash size={12}/> Excluir
+                </button>
+              </div>
+            </>
+          )}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
   );
 }
