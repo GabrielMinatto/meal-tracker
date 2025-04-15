@@ -21,7 +21,6 @@ export async function GET(req, { params }) {
     if (!meal) {
       return new Response(JSON.stringify({ success: false, message: "Refeição não encontrada." }), {
         status: 404,
-        headers: corsHeaders,
       });
     }
 
